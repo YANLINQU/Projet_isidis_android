@@ -13,6 +13,7 @@ import okio.ByteString;
 
 public class SocketClient extends WebSocketListener {
     private static final int NORMAL_CLOSURE_STATUS =1000;
+    //un lien de la commande ws login au serveur
     private final static String LOCAL_TO_WS = "ws://vps507764.ovh.net:8080/projet_isidis/webSocketIMServer";
 
     private OkHttpClient okHttpClient;
@@ -24,12 +25,13 @@ public class SocketClient extends WebSocketListener {
         okHttpClient = new OkHttpClient();
         ws = okHttpClient.newWebSocket(request,this);
     }
-
+    //envoyer une message au serveur
     public void send(){
         okHttpClient.dispatcher().executorService().shutdown();
     }
 
     @Override
+    //Utiliser cette méthode automatiquement lors de se connecter le lien de la commande ws au serveur
     public void onOpen(WebSocket webSocket, Response response) {
         webSocket.send("#SuShiKan# hello socket");
         webSocket.close(NORMAL_CLOSURE_STATUS,"Goog Bye");

@@ -2,7 +2,7 @@ package com.example.yanlin.projet_isidis;
 
 /**
  * Created by yanlin on 2018/1/24.
- * un objet singleton
+ * un objet singleton pour assurer qu'une classe ou unique dans l'application
  */
 
 public class UserEntity {

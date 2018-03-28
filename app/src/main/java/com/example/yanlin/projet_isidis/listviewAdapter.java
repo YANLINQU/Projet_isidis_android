@@ -3,40 +3,25 @@ package com.example.yanlin.projet_isidis;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import static android.media.AudioRecord.SUCCESS;
-import static java.lang.Thread.sleep;
-
 /**
- * Created by yanlin on 2017/11/30.
+ * Created by yanlin on 2018/1/24.
  */
 
 public class listviewAdapter extends BaseAdapter implements View.OnClickListener{
@@ -106,14 +91,14 @@ public class listviewAdapter extends BaseAdapter implements View.OnClickListener
             }).start();
         }
     }
-
+    //charger les images synchroniser
     public synchronized void chergerImage(int position,HashMap<String,String> map){
         bitmap = getImageFromNet(map.get("IMAGE").trim());
         bitmaps.put(position,bitmap) ;
         flags[position]=false;
         System.out.println("position:"+position+" flag:"+flags[position]);
     }
-
+    //recharger les informations sur la liste view
     public View getView(final int position, View convertView, ViewGroup parent) {
         new Thread(new Runnable() {
             @Override
@@ -153,6 +138,7 @@ public class listviewAdapter extends BaseAdapter implements View.OnClickListener
     }
 
     @Override
+    //les fonction de bouton commande
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.bt_commande:
@@ -178,7 +164,7 @@ public class listviewAdapter extends BaseAdapter implements View.OnClickListener
         TextView prix;
         Button bt_commande;
     }
-
+    //envoyer une requête GET au serveur
     public void netWorkGet(String id_menu){
 
         try {
@@ -208,28 +194,28 @@ public class listviewAdapter extends BaseAdapter implements View.OnClickListener
         try {
             URL mURL = new URL(url);
             conn = (HttpURLConnection) mURL.openConnection();
-            conn.setRequestMethod("GET"); //设置请求方法
-            conn.setConnectTimeout(10000); //设置连接服务器超时时间
-            conn.setReadTimeout(5000);  //设置读取数据超时时间
+            conn.setRequestMethod("GET"); //le type de requete
+            conn.setConnectTimeout(10000); //le temp de connection timeout
+            conn.setReadTimeout(5000);  //le temp de lire timeout
 
-            conn.connect(); //开始连接
+            conn.connect(); //se connecter
 
-            int responseCode = conn.getResponseCode(); //得到服务器的响应码
+            int responseCode = conn.getResponseCode(); //récupérer l'état de connection
             if (responseCode == 200) {
-                //访问成功
-                InputStream is = conn.getInputStream(); //获得服务器返回的流数据
-                Bitmap bitmap = BitmapFactory.decodeStream(is); //根据流数据 创建一个bitmap对象
+                //succès
+                InputStream is = conn.getInputStream(); //récupérer la réponse
+                Bitmap bitmap = BitmapFactory.decodeStream(is); //déclarer un objet BITMAP
                 return bitmap;
 
             } else {
-                //访问失败
+                //confection d'échec
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (conn != null) {
-                conn.disconnect(); //断开连接
+                conn.disconnect(); //déconnecter
             }
         }
         return null;

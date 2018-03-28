@@ -19,14 +19,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
-
+    //le lien de serveur
     private final static String LOCAL = "http://vps507764.ovh.net:8080/projet_isidis/";
+    //login name
     private TextView ttInputUserName;
+    //login password
     private TextView ttInputPWD;
+    //login bouton
     private Button bt_login;
+    //user d'object
     private UserEntity userEntity;
+    //http commande par un url
     private HttpUrlCommande httpUrlCommande;
+    //un intent scanner page
     private Intent intentScanner;
+    //une reponse
     private int requestNomJoueurs=1;
     private String url,id_table,dataJson,nom;
     private ArrayList<HashMap<String,String>> list;
@@ -38,13 +45,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //creer un objet login name
         ttInputUserName = (TextView)findViewById(R.id.input_username);
+        //creer un objet login pwd
         ttInputPWD = (TextView)findViewById(R.id.input_pwd);
+        //une message erreur
         tt_error = (TextView)findViewById(R.id.tt_error);
-
+        //realiser http commande par un url
         httpUrlCommande = new HttpUrlCommande();
+        //realiser un bouton login
         bt_login = (Button) findViewById(R.id.btn_login);
+        //rajouter onClickListen sur le bouton login
         bt_login.setOnClickListener(new MyClickListener());
+        //realiser un user d'objet
         userEntity = UserEntity.getEntity();
     }
 
@@ -53,8 +66,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v){
             switch (v.getId()){
-                //button login
+                //button login on click
                 case R.id.btn_login:
+                    //creer une thread pour communiquer au serveur
                     new Thread(runnable).start();
                     break;
                 default:
@@ -80,22 +94,30 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void onclickLogin(){
+        //récupérer la chaîne de login name
         nom = ttInputUserName.getText().toString().trim();
+        //récupérer la chaîne de login pwd
         String pwd = ttInputPWD.getText().toString().trim();
+        //composer le lien de login avec nom et pwd
         String url = LOCAL+"userLogin/"+nom+"/"+pwd;
         String result=null;
         result = httpUrlCommande.commandeUrl(url).trim();
         if(result != null || !result.equals(null) || !result.equals("")){
+            //déclaré un jsonabject pour analyser la réponse du serveur
             JSONObject jsonObj = null;
             try {
+                //récupérer la réponse en json
                 jsonObj = new JSONObject(result);
             } catch (JSONException e) {
                 //tt_error.setText("incorrect username or password !");
             }
+            //si reçu la réponse n'est pas null
             if(jsonObj != null){
                 //tt_error.setText("");
                 //System.out.println(jsonObj.optInt("id"));
+                //récupérer l'id de user login
                 userEntity.setId(jsonObj.optInt("id"));
+                //récupérer le nom de user login
                 userEntity.setNom(jsonObj.optString("nom"));
                 //System.out.println(userEntity.toString());
                 //scanner
@@ -103,14 +125,17 @@ public class MainActivity extends AppCompatActivity {
                 intentIntegrator.initiateScan();
             }
         }else{
+            //message errer de login
             messageError("incorrect username or password !");
         }
     }
 
     @Override
+    //rechercher la fonction onActivityResult de scanner
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // 获取解析结果
+        //analyser le lien du qr code
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        //si un bien lien
         if (result != null) {
             if (result.getContents() == null) {
                 messageError("");
@@ -121,10 +146,11 @@ public class MainActivity extends AppCompatActivity {
                 splitUrl();
                 Thread thread = new Thread(runnableMenus);
                 thread.start();
-
+                //faire un flag pour attendre la réponse de la commande par le lien de qr code
                 while(flag){
                     //rien fait
                 }
+                //réaliser un entent et transporter la data et l'id de la table au page menu
                 intentScanner = new Intent();
                 intentScanner.setClass(MainActivity.this, Menus.class);
                 intentScanner.putExtra("dataJson", dataJson);
@@ -143,13 +169,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //composer url
     public void splitUrl(){
         String[] lien = url.split("/");
         id_table = lien[lien.length-1];
         url = url.substring(0,url.length()-2);
         //Toast.makeText(this, url, Toast.LENGTH_LONG).show();
     }
-
+    //récupérer les menus par le lien de commande
     public void requestMenus(){
         dataJson = httpUrlCommande.commandeUrl(url);
         System.out.println("dataJson:"+dataJson);
